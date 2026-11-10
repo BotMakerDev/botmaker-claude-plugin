@@ -1,0 +1,12 @@
+{
+  "name": "botmaker",
+  "description": "BotMaker's plugins for Claude Code.",
+  "owner": {"name": "BotMakerDev", "url": "https://github.com/BotMakerDev"},
+  "plugins": [
+    {
+      "name": "botmaker",
+      "source": "./plugins/botmaker",
+      "description": "BotMaker's MCP tools: your bots, their runs, and the Android emulators on this computer."
+    }
+  ]
+}

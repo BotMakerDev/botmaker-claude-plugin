@@ -1,0 +1,46 @@
+name: follow-cli
+
+# Opens a pull request moving cli.json to the newest botmaker cli release, then starts check.yml on its branch: a
+# push made with GITHUB_TOKEN starts no workflow, but a dispatch does.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "cli version to pin (default: the newest release)"
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  follow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move the pin
+        id: move
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          moved=$(bash tools/move-pin.sh "$VERSION")
+          echo "moved=$moved" >> "$GITHUB_OUTPUT"
+      - name: Open the pull request and check it
+        if: steps.move.outputs.moved != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MOVED: ${{ steps.move.outputs.moved }}
+        run: |
+          branch="pin/${MOVED// /-}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -am "pin: $MOVED"
+          git push -f origin "$branch"
+          gh pr create --head "$branch" --title "pin: $MOVED" --body "cli.json moved to $MOVED by follow-cli." \
+            || echo "a pull request for $branch is open already"
+          gh workflow run check.yml --ref "$branch"

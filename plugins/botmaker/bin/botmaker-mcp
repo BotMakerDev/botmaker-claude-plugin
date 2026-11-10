@@ -1,0 +1,55 @@
+#!/bin/sh
+# BotMaker's MCP server for Claude Code: fetches the botmaker cli jar cli.json pins, checks its sha256, keeps it,
+# and runs `botmaker mcp-bridge` with Java. stdout is the MCP protocol, so everything this script says goes to
+# stderr. Windows runs botmaker-mcp.cmd, which does the same.
+set -eu
+
+here=$(cd "$(dirname "$0")/.." && pwd)
+say() { printf 'botmaker-mcp: %s\n' "$*" >&2; }
+
+# cli.json is flat and machine-written: one "key": "value" per line.
+pinned() { sed -n "s/^[[:space:]]*\"$1\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/p" "$here/cli.json"; }
+version=$(pinned version)
+url=$(pinned url)
+sha=$(pinned sha256)
+[ -n "$version" ] && [ -n "$url" ] && [ -n "$sha" ] || { say "cli.json names no version, url and sha256"; exit 1; }
+
+if [ -n "${CLAUDE_PLUGIN_DATA:-}" ]; then cache=$CLAUDE_PLUGIN_DATA
+elif [ "$(uname -s)" = Darwin ]; then cache=$HOME/Library/Caches/botmaker/claude-plugin
+else cache=${XDG_CACHE_HOME:-$HOME/.cache}/botmaker/claude-plugin
+fi
+jar=$cache/botmaker-cli-$version-all.jar
+
+sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | cut -d' ' -f1
+  else shasum -a 256 "$1" | cut -d' ' -f1
+  fi
+}
+
+# The .sha256 beside the jar is written only after the jar was checked: a start then reads it instead of hashing.
+if [ ! -f "$jar" ] || [ "$(cat "$jar.sha256" 2>/dev/null)" != "$sha" ]; then
+  mkdir -p "$cache"
+  rm -f "$jar.sha256"
+  part=$jar.part.$$
+  trap 'rm -f "$part"' EXIT
+  say "fetching botmaker cli $version"
+  if command -v curl >/dev/null 2>&1; then curl -fsSL --retry 3 -o "$part" "$url" || { say "could not fetch $url"; exit 1; }
+  else wget -q -O "$part" "$url" || { say "could not fetch $url"; exit 1; }
+  fi
+  got=$(sha256 "$part")
+  [ "$got" = "$sha" ] || { say "$url has sha256 $got, cli.json pins $sha; not running it"; exit 1; }
+  mv -f "$part" "$jar"
+  trap - EXIT
+  printf '%s' "$sha" >"$jar.sha256"
+  for old in "$cache"/botmaker-cli-*-all.jar; do
+    [ "$old" = "$jar" ] || rm -f "$old" "$old.sha256"
+  done
+fi
+
+if [ -n "${BOTMAKER_JAVA:-}" ]; then java=$BOTMAKER_JAVA
+elif [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/java" ]; then java=$JAVA_HOME/bin/java
+elif command -v java >/dev/null 2>&1; then java=java
+else say "BotMaker needs Java 25 or newer: install it, or set BOTMAKER_JAVA to its java"; exit 1
+fi
+
+exec "$java" -jar "$jar" mcp-bridge "$@"
