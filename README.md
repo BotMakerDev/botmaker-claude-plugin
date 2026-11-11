@@ -27,6 +27,18 @@ You need **Java 25 or newer**. The launcher uses `$BOTMAKER_JAVA`, then `$JAVA_H
 The bridge forwards to BotMaker's core on this computer and starts the core when none is running. Set
 `$BOTMAKER_UMBRELLA` to a BotMaker checkout to start the core from that checkout when no Studio has run.
 
+## Other AI tools, or no plugin
+
+The plugin is one way in. The botmaker cli (from the release after 0.12.0) has two others, for Claude Code, Codex,
+Gemini CLI and opencode alike:
+
+- `botmaker ai <tool>` in a bot's folder starts the tool with the MCP tools and its own file edits denied.
+- `botmaker mcp install <tool>` registers the MCP server in the tool's user settings, for sessions you start
+  yourself (`--print` shows the entry; `--dev` registers a BotMaker checkout's build). It adds no guard: in a bot's
+  folder, the folder's own files (written when Studio opens it) or `botmaker ai` keep the tool to the MCP tools.
+
+With the plugin installed too, a Claude Code session has both servers, `botmaker` and `botmaker-studio`: keep one.
+
 ## Development
 
 - `bash tests/launcher-test.sh`: both launchers, against a fake jar and a fake java (the `.cmd` on Windows only).
