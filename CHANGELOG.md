@@ -9,6 +9,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Every file states its license and copyright by REUSE (`REUSE.toml`, `LICENSES/`), checked by the `reuse`
+  workflow on each push.
 - Licensed under PolyForm Noncommercial 1.0.0, copyright LiQiyeDev: free for any noncommercial use, commercial use
   needs a license from LiQiyeDev. Copies taken before stay CC0 1.0.
 
