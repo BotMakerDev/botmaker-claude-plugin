@@ -7,6 +7,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+
+- Licensed under PolyForm Noncommercial 1.0.0, copyright LiQiyeDev: free for any noncommercial use, commercial use
+  needs a license from LiQiyeDev. Copies taken before stay CC0 1.0.
+
 ### Added
 
 - The `botmaker` marketplace with the `botmaker` plugin. Its MCP server runs the botmaker cli's `mcp-bridge`, pinned
