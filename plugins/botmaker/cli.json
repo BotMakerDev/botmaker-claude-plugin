@@ -1,5 +1,5 @@
 {
-  "version": "0.12.0",
-  "url": "https://jitpack.io/com/github/BotMakerDev/botmaker-cli/v0.12.0/botmaker-cli-v0.12.0-all.jar",
-  "sha256": "0ea0cf99185e91b76e97ee0ef58bcc7db04bf3ddae80f5a6c1db0fb909a73b02"
+  "version": "0.14.0",
+  "url": "https://github.com/BotMakerDev/botmaker-cli/releases/download/v0.14.0/botmaker-cli-all.jar",
+  "sha256": "528937e7f87cf2dd7b29f3c70babb501a17e76eaf8d98fb7011424038f10d0b8"
 }
