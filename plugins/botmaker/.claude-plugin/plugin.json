@@ -1,7 +1,7 @@
 {
   "name": "botmaker",
   "displayName": "BotMaker",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "BotMaker's MCP tools: your bots, their runs, and the Android emulators on this computer, with or without Studio open.",
   "author": {"name": "BotMakerDev", "url": "https://github.com/BotMakerDev"},
   "homepage": "https://botmakerdev.github.io",
